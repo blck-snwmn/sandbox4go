@@ -8,10 +8,6 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-func do2() {
-	fmt.Println("test")
-}
-
 func main() {
 	cfg := &packages.Config{Mode: packages.NeedFiles | packages.NeedSyntax}
 	pkgs, err := packages.Load(cfg, "./testdata")
@@ -29,22 +25,20 @@ func main() {
 			ast.Inspect(s, func(n ast.Node) bool {
 				switch n := n.(type) {
 				case *ast.CallExpr:
+					fmt.Println("----")
 					switch f := n.Fun.(type) {
 					case *ast.SelectorExpr:
-						fmt.Printf("f.`X` %v\n", f.X)
-						fmt.Printf("f.`Sel` %+v\n", f.Sel)
+						// f.X is package name or variable name
+						fmt.Printf("call %+v.%v(%q) [*ast.SelectorExpr]\n", f.X, f.Sel, n.Args)
 					default:
-						fmt.Printf("f.`X` %v", f)
+						fmt.Printf("call %+v(%q), \n", f, n.Args)
 					}
-					fmt.Printf("args=%v\n", n.Args)
-					fmt.Printf("Fun=%v\n", n.Fun)
-					fmt.Printf("Lparen=%v\n", n.Lparen)
-					fmt.Printf("Rparen=%v\n", n.Rparen)
 				}
 				return true
 			})
 		}
 	}
+	fmt.Println("----")
 	fmt.Println(len(pkgs))
 	fmt.Println(len(pkgs[0].Syntax))
 }
